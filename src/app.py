@@ -26,16 +26,6 @@ except Exception as e:
     print(f"Files in current directory: {os.listdir('.')}")
     model_pipeline = None
 
-# Create Prometheus metrics
-data_drift_gauge = Gauge("data_drift", "Data Drift Score")
-concept_drift_gauge = Gauge("concept_drift", "Concept Drift Score")
-
-# Load reference data
-diamonds = sns.load_dataset("diamonds")
-X_reference = diamonds[["carat", "cut", "color", "clarity", "depth", "table"]]
-y_reference = diamonds["price"]
-
-
 @app.route("/predict", methods=["POST"])
 def predict():
     if model_pipeline is None:
@@ -46,6 +36,15 @@ def predict():
 
     prediction = model_pipeline.predict(df)
     return jsonify({"prediction": prediction[0]})
+
+# Create Prometheus metrics
+data_drift_gauge = Gauge("data_drift", "Data Drift Score")
+concept_drift_gauge = Gauge("concept_drift", "Concept Drift Score")
+
+# Load reference data
+diamonds = sns.load_dataset("diamonds")
+X_reference = diamonds[["carat", "cut", "color", "clarity", "depth", "table"]]
+y_reference = diamonds["price"]
 
 
 def monitor_drifts():
